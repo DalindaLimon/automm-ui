@@ -12,13 +12,17 @@
 > his results in a nicer way, nothing more. You need his project installed for this one to do
 > anything. See [Credits](#credits).
 
-<!-- Screenshots: add images to docs/images/ and link them here, e.g. ![The filament wall and printer](docs/images/overview.png) -->
+![automm-ui: the filament wall on the left, the selected filament's results around a 3D QIDI Q2 on the right](docs/images/overview.png)
+
+<sub>Screenshots show real measurements from a QIDI Q2; the filament names are examples.</sub>
 
 ## What you get
 
 - **A page inside Fluidd.** A **Calibration** entry in Fluidd's sidebar opens it full-size,
   right next to everything else you use. It also works on its own at `http://<printer-ip>/automm/`,
   and inside OrcaSlicer's Device tab.
+
+  ![automm-ui opened from the Calibration entry in Fluidd's sidebar](docs/images/fluidd.png)
 - **A filament wall.** Your filaments hang on a pegboard as 3D spools, in their real colours.
   The spools in your QIDI Box show up automatically, tagged *in the Box* or *in toolhead*.
 - **Calibrate with a form instead of console commands.** Pick a spool, check the temperature and
@@ -33,6 +37,8 @@
   material, compare runs, and **export / import** the whole wall as a backup.
 - **Fits in.** Uses Fluidd's own colours, works on phones, and has a *lite* mode (switched on
   automatically when the page runs slowly, like in OrcaSlicer).
+
+<p align="center"><img src="docs/images/phone.png" width="300" alt="automm-ui on a phone: the filament wall with the QIDI Box spools"></p>
 
 ## Requirements
 
@@ -76,7 +82,7 @@ Automm3AdaptivePA. Everything it does is undone by `--uninstall`.
 
 ```bash
 ssh qidi@PRINTER_IP
-git clone https://github.com/DalindaLimon>/automm-ui.git ~/automm-ui
+git clone https://github.com/DalindaLimon/automm-ui.git ~/automm-ui
 ~/automm-ui/install.sh
 ```
 
@@ -126,6 +132,8 @@ A Box spool shows a calibration when a filament on the wall has the **same colou
    - **Where to purge**: the *chute*, or *over the bed* for filaments that clog the chute
      (the bed must be completely empty).
 3. Tick the four safety checks and press **Heat and start**. Stay at the printer.
+
+   <img src="docs/images/calibrate.png" width="420" alt="The calibrate form: name, material, colour, temperature, purge location, nozzle, precision, geometry and the four safety checks">
 4. The **Live** panel shows each stage. It takes about 10–15 minutes, ending with a cool-down wipe.
 
 **Dry run** shows Automm3AdaptivePA's plan without heating or moving anything.
@@ -143,8 +151,12 @@ fill in the values from the **Copy to OrcaSlicer** box:
 | Enable adaptive pressure advance | tick it |
 | Adaptive pressure advance measurements | *Adaptive pressure advance measurements* (all rows) |
 
+![The Copy to OrcaSlicer box: PA-versus-flow chart, and the three values with copy buttons](docs/images/orca.png)
+
 The PA table is only valid for the **nozzle, layer height and line width it was measured with**
 (shown in the *Measured geometry* card; hover a value to see where to set it in Orca).
+
+<p align="center"><img src="docs/images/geometry.png" width="260" alt="The Measured geometry card: a nozzle drawing with nozzle size, layer height and line width, each with a copy button"></p>
 
 ### Good to know
 
