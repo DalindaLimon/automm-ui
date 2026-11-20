@@ -20,3 +20,4 @@ itself is entirely his project; this release is only the UI around it.
 - Lite mode for slow viewers such as OrcaSlicer's Device tab, switched on automatically.
 - Installer that needs no sudo, can be re-run safely and is fully undone by `--uninstall`, plus a one-command install from a PC.
 - Tests for the logic, the installer and the repository, run in CI.
+- README screenshots, and `tools/take-screenshots.py` to retake them.

@@ -53,6 +53,15 @@ class Hygiene(unittest.TestCase):
                 continue
             self.assertIn(used, ids, f'app.js uses $("{used}") but index.html has no such id')
 
+    def test_readme_images_exist(self):
+        readme = (REPO / "README.md").read_text()
+        images = re.findall(r'!\[[^\]]*\]\(([^)]+)\)|<img[^>]+src="([^"]+)"', readme)
+        paths = [a or b for a, b in images]
+        self.assertTrue(paths, "README has screenshots")
+        for ref in paths:
+            if not ref.startswith("http"):
+                self.assertTrue((REPO / ref).is_file(), f"README shows missing image {ref}")
+
     def test_lib_is_loaded_before_app(self):
         html = (REPO / "web" / "index.html").read_text()
         self.assertLess(html.index('src="lib.js"'), html.index('src="app.js"'))
