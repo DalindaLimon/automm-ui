@@ -1,0 +1,130 @@
+<!doctype html>
+<!-- automm-ui: a web interface for Automm3AdaptivePA (by Buddman69). This page is only a UI; see README.md. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Automm UI</title>
+<meta name="description" content="automm-ui: a web interface for Automm3AdaptivePA calibration results">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Automm UI <span title="automm-ui is only a user interface. The calibration is Automm3AdaptivePA by Buddman69.">· for Automm3AdaptivePA</span></h1>
+  <div class="pills">
+    <span class="pill"><i class="dot" id="dKlippy"></i><span id="tKlippy">connecting…</span></span>
+    <span class="pill">Nozzle <b id="tExt">–</b></span>
+    <span class="pill">Bed <b id="tBed">–</b></span>
+    <span class="pill"><i class="dot" id="dBusy"></i><span id="tBusy">–</span></span>
+  </div>
+  <button class="small hidden" id="btnRestart">Restart firmware</button>
+  <button class="estop" id="btnStop" title="Emergency stop: halts everything immediately">STOP</button>
+</header>
+
+<main>
+  <!-- ======================= left: the filament wall ======================= -->
+  <section class="panel" id="wallPanel">
+    <div class="ph"><h2>Filament wall</h2><span class="sub embedonly" id="embedStatus"></span>
+      <div class="wallbtns"><button class="small" id="btnExport" title="Download the wall (names, colours and results) as a file">Export</button><button class="small" id="btnImport" title="Load names and colours from an exported file">Import</button><button class="small danger" id="btnClear" title="Remove every filament from the wall">Delete all</button><input type="file" id="importFile" accept="application/json,.json" hidden></div></div>
+    <div class="wall" id="wall"></div>
+    <div class="unsorted" id="unsorted"></div>
+  </section>
+
+  <!-- ======================= right: the printer ======================= -->
+  <section class="panel" id="printerPanel">
+    <div class="ptitle"><i class="swatch" id="selSwatch"></i><h2 id="selName">–</h2><span class="chip" id="selMat"></span><span class="sub" id="selWhen"></span><button class="small" id="btnLite" style="margin-left:auto" title="Lite turns off animations and simplifies the 3D, for slow viewers like OrcaSlicer's Device tab">Effects: full</button></div>
+    <div class="stagewrap"><div class="stage" id="stage">
+      <svg class="leaders" id="leaders"></svg>
+      <div class="co l1" id="coFlow"><span>Max volumetric speed</span><div class="vr"><b>–</b><button class="cp" title="Copy" aria-label="Copy max volumetric speed" disabled></button></div></div>
+      <div class="co l2" id="coPA"><span>Pressure advance (K)</span><div class="vr"><b>–</b><button class="cp" title="Copy" aria-label="Copy pressure advance (k)" disabled></button></div></div>
+      <div class="co l3" id="coTemp"><span>Nozzle temperature</span><div class="vr"><b>–</b><button class="cp" title="Copy" aria-label="Copy nozzle temperature" disabled></button></div></div>
+      <div class="geo" id="coGeo"><span>Measured geometry</span><div id="geoArt"></div></div>
+      <div class="printer" id="printer">
+        <div class="f back"></div><div class="f left"></div><div class="f right"></div><div class="f bottom"></div>
+        <div class="in" id="interior"></div>
+        <div class="f top"></div>
+        <div class="f front"><div class="topband"><i class="led"></i><div class="screen" id="screen"><b>Q2</b>ready</div></div><div class="door"></div><div class="base">QIDI</div></div>
+      </div>
+    </div></div>
+    <div class="pbody">
+      <div class="actions">
+        <button class="primary" id="btnCal">Calibrate this filament</button>
+        <button id="btnDry">Dry run</button>
+        <button id="btnRename">Rename / colour</button>
+      </div>
+      <div class="runs" id="runs"></div>
+      <div id="warnBox"></div>
+      <details class="box" id="orcaBox" open>
+        <summary>Copy to OrcaSlicer</summary>
+        <div class="grid2">
+          <div id="chartBox"></div>
+          <div id="orcaFields"></div>
+        </div>
+      </details>
+      <details class="box" id="liveBox">
+        <summary>Live <span class="sub" id="runInfo">· idle</span></summary>
+        <ul class="steps" id="steps"></ul>
+        <div id="console" aria-live="polite"></div>
+        <div class="note hidden" id="runNote"></div>
+      </details>
+    </div>
+  </section>
+</main>
+
+<!-- calibrate dialog -->
+<dialog id="dlgCal">
+  <h3>Calibrate filament</h3>
+  <div class="sub">Load this filament into the toolhead first (printer screen or Fluidd's Box card). This tool doesn't load from the Box.</div>
+  <div class="cols3">
+    <div><label class="l" for="fName">Name</label><input type="text" id="fName" maxlength="60" placeholder="e.g. Elegoo PLA+ white"></div>
+    <div><label class="l" for="fMat">Material</label><select id="fMat"></select></div>
+    <div><label class="l" for="fColor">Colour</label><input type="color" id="fColor" value="#888888"></div>
+  </div>
+  <label class="l" for="fTemp">Nozzle temperature (°C)</label>
+  <input type="number" id="fTemp" min="170" max="300" step="1" value="220">
+  <div class="tchips" id="tempChips"></div>
+  <div class="cols">
+    <div><label class="l">Where to purge</label>
+      <div class="seg"><label><input type="radio" name="loc" value="chute" checked><span>Chute</span></label><label><input type="radio" name="loc" value="bed"><span>Over bed</span></label></div></div>
+    <div><label class="l" for="fNozzle">Nozzle</label>
+      <select id="fNozzle"><option value="0.2">0.2 mm</option><option value="0.4" selected>0.4 mm (stock)</option><option value="0.6">0.6 mm</option><option value="0.8">0.8 mm</option></select></div>
+    <div><label class="l" for="fBlocks">Precision</label>
+      <select id="fBlocks"><option value="12" selected>Standard (~4 min)</option><option value="20">Better (~6 min)</option><option value="30">Best (~9 min)</option></select></div>
+    <div><label class="l" for="fPoints">Table rows</label>
+      <select id="fPoints"><option value="3">3 – quick</option><option value="5" selected>5 – standard</option><option value="7">7 – detailed</option></select></div>
+    <div><label class="l" for="fLayer">Layer height (mm)</label><input type="number" id="fLayer" step="0.01" min="0.05" max="1"></div>
+    <div><label class="l" for="fWidth">Line width (mm)</label><input type="number" id="fWidth" step="0.01" min="0.1" max="1.5"></div>
+  </div>
+  <div class="cmd" id="cmdPreview"></div>
+  <div class="note bad hidden" id="formErr"></div>
+  <div class="checks" id="checks">
+    <label class="check"><input type="checkbox"><span>This filament is loaded and comes out of the nozzle.</span></label>
+    <label class="check"><input type="checkbox"><span id="chkClear">The purge chute is empty.</span></label>
+    <label class="check"><input type="checkbox"><span>Nozzle is clean, no blob on the tip.</span></label>
+    <label class="check"><input type="checkbox"><span>I'm at the printer and can reach the power switch.</span></label>
+  </div>
+  <div class="dact">
+    <button id="calCancel">Cancel</button>
+    <button id="calDry">Dry run</button>
+    <button class="primary" id="calGo" disabled>Heat and start</button>
+  </div>
+</dialog>
+
+<!-- name dialog -->
+<dialog id="dlgName">
+  <h3 id="nameTitle">Name this filament</h3>
+  <div class="sub" id="nameSub"></div>
+  <div class="cols3">
+    <div><label class="l" for="nName">Name</label><input type="text" id="nName" maxlength="60" list="knownNames"></div>
+    <div><label class="l" for="nMat">Material</label><select id="nMat"></select></div>
+    <div><label class="l" for="nColor">Colour</label><input type="color" id="nColor" value="#888888"></div>
+  </div>
+  <datalist id="knownNames"></datalist>
+  <div class="sub" style="margin-top:8px">Clear the name to move a run back to "Unsorted".</div>
+  <div class="dact"><button id="nameCancel">Cancel</button><button class="primary" id="nameSave">Save</button></div>
+</dialog>
+
+<script src="lib.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

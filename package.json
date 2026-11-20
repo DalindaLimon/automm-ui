@@ -1,0 +1,15 @@
+{
+  "name": "automm-ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A web interface for Automm3AdaptivePA's flow and pressure-advance calibration on QIDI printers. Only a UI: the calibration itself is Automm3AdaptivePA by Buddman69.",
+  "license": "GPL-3.0-only",
+  "scripts": {
+    "test": "node --test tests/ && python3 -m unittest discover -s tests",
+    "test:js": "node --test tests/",
+    "test:install": "python3 -m unittest discover -s tests"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
