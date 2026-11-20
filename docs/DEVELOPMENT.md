@@ -60,11 +60,13 @@ automm-ui/
 │   └── fluidd-nav.js        loaded by Fluidd (not by the page) to add the sidebar entry
 ├── install.sh               installer, runs on the printer
 ├── install-from-pc.sh       copies the folder to the printer over SSH and runs install.sh
+├── tools/take-screenshots.py   retakes the README screenshots from a printer (Playwright)
 ├── tests/
 │   ├── lib.test.mjs         Node tests for web/lib.js
 │   ├── test_install.py      install.sh against a fake printer in a temp folder
 │   └── test_repo.py         repository checks (no private IPs, assets exist, versions agree, credits)
 ├── docs/DEVELOPMENT.md      this file
+├── docs/images/             README screenshots
 ├── .github/workflows/tests.yml   CI: runs all tests and shellcheck on every push
 ├── VERSION, CHANGELOG.md, LICENSE (GPL-3.0), package.json (only for `npm test`)
 ```
@@ -323,7 +325,22 @@ check by hand on a printer:
 1. Bump the version in **`VERSION`**, **`web/lib.js`** (`VERSION`) and **`package.json`**.
 2. Add a section to **`CHANGELOG.md`** (`## x.y.z - date`).
 3. `npm test`, then the manual checklist above.
-4. Commit, tag `vX.Y.Z`, push, and create a GitHub release. The source zip is what users download.
+4. If the look changed, retake the screenshots (below).
+5. Commit, tag `vX.Y.Z`, push, and create a GitHub release. The source zip is what users download.
+
+### Screenshots
+
+The README's pictures in `docs/images/` come from `tools/take-screenshots.py`, which drives a
+headless Chromium (Playwright) against a real printer:
+
+```bash
+pip install playwright && python -m playwright install chromium-headless-shell
+python tools/take-screenshots.py PRINTER_IP docs/images
+```
+
+Only in the browser's memory, it swaps your filament names for example names, so personal names
+never end up on GitHub. All the numbers stay real. It needs a few named calibrations on the wall.
+`tests/test_repo.py` checks that every image the README shows exists.
 
 `tests/test_repo.py` fails if the version numbers or the changelog don't agree.
 
