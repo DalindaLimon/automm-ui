@@ -76,7 +76,7 @@ Automm3AdaptivePA. Everything it does is undone by `--uninstall`.
 
 ```bash
 ssh qidi@PRINTER_IP
-git clone https://github.com/<your-account>/automm-ui.git ~/automm-ui
+git clone https://github.com/DalindaLimon>/automm-ui.git ~/automm-ui
 ~/automm-ui/install.sh
 ```
 
